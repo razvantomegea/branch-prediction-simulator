@@ -1,4 +1,4 @@
-# branch-prediction-simulator
+# Unbiased branch prediction simulator
 Module that detects difficult to predict branches implemented with Angular 2.
 
 ## Prerequisites
