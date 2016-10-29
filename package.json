@@ -1,7 +1,14 @@
 {
-  "name": "ng2-electron",
-  "version": "0.1.0",
-  "description": "Using Angular 2 with Electron",
+  "name": "branch-detection-simulator",
+  "version": "1.0.0",
+  "description": "Module that detects difficult to predict (unbiased) branches implemented with Angular 2 and Electron.",
+  "author": "Razvan Tomegea <razvan.tomegea@gmail.com>",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/razvantomegea/branch-prediction-simulator/blob/desktop/LICENSE"
+    }
+  ],
   "main": "main.js",
   "scripts": {
     "start": "tsc && concurrently \"npm run tsc:w\" \"electron .\" ",
@@ -10,23 +17,6 @@
     "typings": "typings",
     "postinstall": "typings install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DenisVuyka/ng2-electron.git"
-  },
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "Angular"
-  ],
-  "author": "Denys Vuika <denys.vuika@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/DenisVuyka/ng2-electron/issues"
-  },
-  "homepage": "https://github.com/DenisVuyka/ng2-electron/#readme",
   "dependencies": {
     "@angular/common": "~2.1.0",
     "@angular/compiler": "~2.1.0",
@@ -48,8 +38,20 @@
   },
   "devDependencies": {
     "concurrently": "^2.2.0",
+    "devtron": "^1.4.0",
     "electron": "^1.3.5",
     "typescript": "^2.0.2",
     "typings": "^1.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/razvantomegea/branch-prediction-simulator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/razvantomegea/branch-prediction-simulator/issues"
+  },
+  "engines": {
+    "node": ">= 4.2.1",
+    "npm": ">= 3"
   }
 }

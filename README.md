@@ -18,3 +18,7 @@ cd branch-prediction-simulator
 npm install
 npm start
 ```
+
+## Packaging
+To package the application for production to specific platforms, use the electron-packager
+Install the electron packager globally by `npm install -g electron-packager`, then type `electron-packager . branch-detection-simulator --platform=win32 --arch=x64` for Windows x64. If you want to package it for other platforms, visit (Electron-packagare API Docs)[https://github.com/electron-userland/electron-packager/blob/master/docs/api.md]
