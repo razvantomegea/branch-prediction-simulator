@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
-  title = 'app wor';
-  data: any;
-    
+    title = 'app wor';
+    data: any;
     constructor() {
         this.data = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -22,6 +21,6 @@ export class AppComponent {
                     data: [28, 48, 40, 19, 86, 27, 90]
                 }
             ]
-        }
+        };
     }
 }

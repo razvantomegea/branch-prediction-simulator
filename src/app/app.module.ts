@@ -6,10 +6,16 @@ import { HttpModule } from '@angular/http';
 import { ChartModule } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
+import { PredictorComponent } from './predictor/predictor.component';
+import { DetectorComponent } from './detector/detector.component';
+import { ChartResultsComponent } from './chart-results/chart-results.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    PredictorComponent,
+    DetectorComponent,
+    ChartResultsComponent
   ],
   imports: [
     BrowserModule,
