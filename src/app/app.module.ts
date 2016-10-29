@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { PredictorComponent } from './predictor/predictor.component';
 import { DetectorComponent } from './detector/detector.component';
 import { ChartResultsComponent } from './chart-results/chart-results.component';
+//import { HGr, PHT, PredictionAutomata } from './prediction';
 
 @NgModule({
   declarations: [
