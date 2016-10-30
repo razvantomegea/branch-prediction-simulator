@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { PHT } from '../prediction';
+import { HistoryTable } from '../prediction-history';
 
 @Component({
   selector: 'app-predictor',
@@ -8,11 +8,11 @@ import { PHT } from '../prediction';
   styleUrls: ['./predictor.component.sass']
 })
 export class PredictorComponent implements OnInit {
-  public pht: PHT;
+  public pht: HistoryTable;
   constructor() { }
 
   ngOnInit() {
-    this.pht = new PHT();
+    this.pht = new HistoryTable();
   }
 
 }
