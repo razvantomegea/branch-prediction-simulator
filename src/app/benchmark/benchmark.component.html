@@ -1,0 +1,7 @@
+<p-pickList [source]="availableBenchmarks" [target]="selectedBenchmarks" sourceHeader="Available" targetHeader="Selected" [responsive]="true">
+    <template let-benchmark>
+        <div class="ui-helper-clearfix">
+          <div>{{ benchmark }}</div>
+        </div>
+    </template>
+</p-pickList>

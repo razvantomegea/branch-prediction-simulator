@@ -8,7 +8,10 @@ import { HistoryTable } from '../prediction-history';
   styleUrls: ['./predictor.component.sass']
 })
 export class PredictorComponent implements OnInit {
+  public biased: number = 0;
+  public history: number = 0;
   public pht: HistoryTable;
+  public withPath: boolean = false;
   constructor() { }
 
   ngOnInit() {
