@@ -14,21 +14,38 @@ var forms_1 = require('@angular/forms');
 var http_1 = require('@angular/http');
 var primeng_1 = require('primeng/primeng');
 var app_component_1 = require('./app.component');
+var benchmark_component_1 = require('./benchmark/benchmark.component');
+var detector_component_1 = require('./detector/detector.component');
+var chart_results_component_1 = require('./results/chart-results/chart-results.component');
+var prediction_service_1 = require('./prediction-history/prediction.service');
+var predictor_component_1 = require('./predictor/predictor.component');
+var standard_results_component_1 = require('./results/standard-results/standard-results.component');
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
             declarations: [
-                app_component_1.AppComponent
+                app_component_1.AppComponent,
+                predictor_component_1.PredictorComponent,
+                detector_component_1.DetectorComponent,
+                chart_results_component_1.ChartResultsComponent,
+                standard_results_component_1.StandardResultsComponent,
+                benchmark_component_1.BenchmarkComponent
             ],
             imports: [
                 platform_browser_1.BrowserModule,
+                primeng_1.ChartModule,
+                primeng_1.CheckboxModule,
+                primeng_1.DataTableModule,
+                primeng_1.FieldsetModule,
                 forms_1.FormsModule,
                 http_1.HttpModule,
-                primeng_1.ChartModule
+                primeng_1.PickListModule,
+                primeng_1.SharedModule,
+                primeng_1.SpinnerModule
             ],
-            providers: [],
+            providers: [prediction_service_1.PredictionService],
             bootstrap: [app_component_1.AppComponent]
         }), 
         __metadata('design:paramtypes', [])

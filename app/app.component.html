@@ -1,4 +1,18 @@
-<h1>
-	{{title}}
-</h1>
-<p-chart type="line" [data]="data"></p-chart>
+<div class="app ui-g">
+	<div class="ui-g-12 ui-fluid">
+		<app-benchmark></app-benchmark>
+	</div>
+	<div class="ui-g-12 ui-fluid">
+		<div class="ui-g-6 ui-g-nopad">
+			<div class="ui-g-12">
+				<app-predictor></app-predictor>
+			</div>
+			<div class="ui-g-12">
+				<app-detector></app-detector>
+			</div>
+		</div>
+		<div class="ui-g-6">
+			<app-standard-results></app-standard-results>
+		</div>
+	</div>
+</div>

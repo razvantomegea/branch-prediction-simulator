@@ -8,7 +8,8 @@
         'app': 'app', // 'dist',
         '@angular': 'node_modules/@angular',
         'rxjs': 'node_modules/rxjs',
-        'primeng': 'node_modules/primeng'
+        'font-awesome': 'node_modules/font-awesome',
+        'primeng': 'node_modules/primeng',
     };
     // packages tells the System loader how to load when no filename and/or no extension
     var packages = {
