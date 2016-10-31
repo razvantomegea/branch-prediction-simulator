@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
+import { BenchmarkService } from '../../benchmark';
 @Component({
   selector: 'app-standard-results',
   templateUrl: './standard-results.component.html',
@@ -7,7 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StandardResultsComponent implements OnInit {
   public results: any[];
-  constructor() { }
+  constructor(private benchmarkSvc: BenchmarkService) { }
+
+  public saveResults(): void {
+    this.benchmarkSvc.saveResults(this.results);
+  }
 
   ngOnInit() {
     this.results = [{

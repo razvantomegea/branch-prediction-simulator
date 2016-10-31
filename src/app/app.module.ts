@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import {
+  ButtonModule,
   ChartModule,
   CheckboxModule,
   DataTableModule,
@@ -14,8 +15,8 @@ import {
 } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
-import { BenchmarkComponent } from './benchmark/benchmark.component';
-import { DetectorComponent } from './detector/detector.component';
+import { BenchmarkComponent, BenchmarkService } from './benchmark';
+import { DetectorComponent, DetectorService } from './detector';
 import { ChartResultsComponent, StandardResultsComponent } from './results';
 import { PredictionService } from './prediction-history';
 import { PredictorComponent } from './predictor/predictor.component';
@@ -31,6 +32,7 @@ import { PredictorComponent } from './predictor/predictor.component';
   ],
   imports: [
     BrowserModule,
+    ButtonModule,
     ChartModule,
     CheckboxModule,
     DataTableModule,
@@ -41,7 +43,7 @@ import { PredictorComponent } from './predictor/predictor.component';
     SharedModule,
     SpinnerModule
   ],
-  providers: [PredictionService],
+  providers: [BenchmarkService, DetectorService, PredictionService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

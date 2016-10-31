@@ -1,3 +1,19 @@
 <p-fieldset legend="Detector" toggleable="true">
-    Content
+    <div class="u-g ui-fluid">
+		<div class="ui-g-12">
+			<p>Global history: {{ history }}</p>
+			<p-spinner [(ngModel)]="history" [min]="0" [max]="32" [step]="2"></p-spinner>
+		</div>
+		<div class="ui-g-12">
+			<p>Unbiased polarization: {{ unbiased }}</p>
+			<p-spinner [(ngModel)]="unbiased" [min]="0" [max]="1" [step]="0.5"></p-spinner>
+		</div>
+    <div class="ui-g-12">
+			<p-checkbox label="Path: {{ path }}" binary="true" [(ngModel)]="withPath"></p-checkbox>
+		</div>
+		<div class="ui-g-12" *ngIf="withPath">
+			<p-spinner [(ngModel)]="path" [min]="0" [max]="16" [step]="2"></p-spinner>
+		</div>
+	</div>
+    <button pButton type="button" (click)="startDetection()" label="Start"></button>
 </p-fieldset>

@@ -1,14 +1,14 @@
 <div class="app ui-g">
 	<div class="ui-g-12 ui-fluid">
-		<app-benchmark></app-benchmark>
+		<app-benchmark (bmkSelection)="addBenchmark($event)"></app-benchmark>
 	</div>
 	<div class="ui-g-12 ui-fluid">
 		<div class="ui-g-6 ui-g-nopad">
 			<div class="ui-g-12">
-				<app-predictor></app-predictor>
+				<app-predictor ></app-predictor>
 			</div>
 			<div class="ui-g-12">
-				<app-detector></app-detector>
+				<app-detector [benchmarks]="benchmarks"></app-detector>
 			</div>
 		</div>
 		<div class="ui-g-6">

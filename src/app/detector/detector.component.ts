@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { DetectorService } from './detector.service';
 
 @Component({
   selector: 'app-detector',
@@ -6,8 +8,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./detector.component.sass']
 })
 export class DetectorComponent implements OnInit {
+  @Input('benchmarks') benchmarks: string[];
+  public biased: number = 0;
+  public history: number = 0;
+  public withPath: boolean = false;
 
-  constructor() { }
+  constructor(private detectSvc: DetectorService) { }
+
+  public startDetection(): void {
+    this.detectSvc.detectBranches(this.benchmarks, 0, 0);
+  }
 
   ngOnInit() {
   }
