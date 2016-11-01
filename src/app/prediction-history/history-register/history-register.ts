@@ -7,8 +7,8 @@ export class HistoryRegister {
         public size: number = entries.length
     ) { }
 
-    public addEntry(history: string, path: number, PClow: number, taken: boolean): void {
-        let HRentry = new HistoryRegisterEntry(PClow, history, taken ? 0 : 1, path, taken ? 1 : 0);
+    public addEntry(history: string, path: number, pcLow: number, taken: boolean): void {
+        let HRentry = new HistoryRegisterEntry(pcLow, history, taken ? 0 : 1, path, taken ? 1 : 0);
         this.entries.push(HRentry);
     }
 

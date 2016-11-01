@@ -17,7 +17,7 @@ export class StandardResultsComponent implements OnInit {
   ngOnInit() {
     this.results = [{
       benchmark: "FSORT",
-      percentage: "98%"
+      bias: "98%"
     }];
   }
 

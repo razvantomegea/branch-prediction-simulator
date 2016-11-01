@@ -1,9 +1,9 @@
 export class HistoryRegisterEntry {
     constructor(
-        public PClow: number = 0,
-        public history: string = "",
-        public notTaken: number = 0,
+        public pcLow: number = 0,
+        public context: string = "",
         public path: number = 0,
-        public taken: number = 0
+        public taken: number = 0,
+        public notTaken: number = 0
     ) { }
 }

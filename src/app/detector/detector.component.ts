@@ -9,14 +9,15 @@ import { DetectorService } from './detector.service';
 })
 export class DetectorComponent implements OnInit {
   @Input('benchmarks') benchmarks: string[];
-  public biased: number = 0;
-  public history: number = 0;
+  public bias: number = 1;
+  public hrgBits: number = 4;
+  public path: number = 4;
   public withPath: boolean = false;
 
   constructor(private detectSvc: DetectorService) { }
 
   public startDetection(): void {
-    this.detectSvc.detectBranches(this.benchmarks, 0, 0);
+    this.detectSvc.detectUBBranches(this.benchmarks, this.hrgBits, this.bias);
   }
 
   ngOnInit() {
