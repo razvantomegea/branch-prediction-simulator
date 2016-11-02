@@ -31,12 +31,14 @@ export class DetectorService {
           let result: Results;
           this.results = [];
           this.initializeHRg(hrgBits);
-          
+
           this.traces.forEach((trace: Benchmark, traceIdx: number) => {
-            this.HRg.resetRegister();
             let branches: string[] = trace.info.split("\n"),
               context: string = "",
-              currPC: number;
+              currPC: number,
+              unbiasedBr: UnbiasedBranch = new UnbiasedBranch(), unbiasedBrNr: number = 0;
+            this.HRg.resetRegister();
+            result = new Results("0%", 0, [], 0, 0, trace.filename);
 
             for (let i: number = 0; i < hrgBits; i++) {
               context += "0";
@@ -88,9 +90,6 @@ export class DetectorService {
 
               context = context.slice(1);
             });
-
-            let unbiasedBr: UnbiasedBranch = new UnbiasedBranch(), unbiasedBrNr: number = 0;
-            result = new Results("0%", 0, [], 0, 0, trace.filename);
 
             this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
               result.totalBranches += entry.taken + entry.notTaken;
