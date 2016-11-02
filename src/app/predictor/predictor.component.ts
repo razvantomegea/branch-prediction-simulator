@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { HistoryTable } from '../prediction-history';
+import { HistoryTable } from '../shared';
 
 @Component({
   selector: 'app-predictor',

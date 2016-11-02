@@ -8,11 +8,11 @@
 				<app-predictor ></app-predictor>
 			</div>
 			<div class="ui-g-12">
-				<app-detector [benchmarks]="benchmarks"></app-detector>
+				<app-detector [benchmarks]="benchmarks" (detectSuccess)="getDetection($event)"></app-detector>
 			</div>
 		</div>
 		<div class="ui-g-6">
-			<app-standard-results></app-standard-results>
+			<app-standard-results [results]="results"></app-standard-results>
 		</div>
 	</div>
 </div>

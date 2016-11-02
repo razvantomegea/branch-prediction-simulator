@@ -18,7 +18,6 @@ import { AppComponent } from './app.component';
 import { BenchmarkComponent, BenchmarkService } from './benchmark';
 import { DetectorComponent, DetectorService } from './detector';
 import { ChartResultsComponent, StandardResultsComponent } from './results';
-import { PredictionService } from './prediction-history';
 import { PredictorComponent } from './predictor/predictor.component';
 
 @NgModule({
@@ -43,7 +42,7 @@ import { PredictorComponent } from './predictor/predictor.component';
     SharedModule,
     SpinnerModule
   ],
-  providers: [BenchmarkService, DetectorService, PredictionService],
+  providers: [BenchmarkService, DetectorService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

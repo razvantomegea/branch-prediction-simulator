@@ -1,5 +1,9 @@
 <p-dataTable [value]="results">
-    <p-column field="benchmark" header="Benchmark" sortable="true"></p-column>
-    <p-column field="bias" header="Percentage" sortable="true"></p-column>
+    <p-column field="traceName" header="Benchmark" sortable="true"></p-column>
+    <p-column field="bias" header="Bias" sortable="true"></p-column>
+    <p-column field="ubBranches.length" header="Unbiased Branches" sortable="true"></p-column>
+    <p-column field="totalBranches" header="Total Branches" sortable="true"></p-column>
+    <p-column field="goodPredictions" header="Good Predictions" sortable="true"></p-column>
+    <p-column field="badPredictions" header="Bad Prediction" sortable="true"></p-column>
 </p-dataTable>
 <button pButton type="button" (click)="saveResults()" label="Save results"></button>

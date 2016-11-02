@@ -1,9 +1,9 @@
-import { UnbiasedBranch } from '../detector';
+import { UnbiasedBranch } from '../shared';
 
 export class Results {
     constructor(
-        public bias: number = 0,
-        public branches: number = 0,
+        public bias: string = "",
+        public totalBranches: number = 0,
         public ubBranches: UnbiasedBranch[] = [],
         public goodPredictions: number = 0,
         public badPredictions: number = 0,

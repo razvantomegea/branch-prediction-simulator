@@ -3,5 +3,5 @@ export { AppModule } from './app.module';
 export { PredictorComponent } from './predictor/predictor.component';
 export * from './benchmark';
 export * from './detector';
-export * from './prediction-history';
 export * from './results';
+export * from './shared';
