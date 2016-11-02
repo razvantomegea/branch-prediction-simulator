@@ -17,8 +17,7 @@ export class AppComponent implements OnInit {
     }
 
     public getDetection(ev: Results[]): void {
-        this.results = [...ev];
-        // FIXME: should contian duplicates
+        this.results = ev;
     }
 
     ngOnInit(): void {

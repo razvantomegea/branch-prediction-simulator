@@ -9,9 +9,7 @@ export class DetectorService {
   private HRg: HistoryRegister;
   private results: Results[];
   private traces: any[];
-  constructor(private benchmarkSvc: BenchmarkService) {
-    this.traces = [];
-  }
+  constructor(private benchmarkSvc: BenchmarkService) { }
 
   private initializeHRg(bitLength: number = 0, entries: HistoryRegisterEntry[] = [], size: number = 0): void {
     this.HRg = new HistoryRegister(bitLength, entries, size);
@@ -19,6 +17,7 @@ export class DetectorService {
 
   public detectUBBranches(benchmarks: string[], hrgBits: number, bias: number): Promise<Results[]> {
     return new Promise((resolve: any) => {
+      this.traces = [];
       this.benchmarkSvc.getBenchmarcks(benchmarks).subscribe(
         data => {
           data.forEach((trace: any, index: number) => {
@@ -110,7 +109,6 @@ export class DetectorService {
             result.bias = (unbiasedBrNr * 100 / result.totalBranches).toFixed(2) + "%";
             this.results.push(result);
           });
-
           resolve(this.results);
         }
       );
