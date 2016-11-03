@@ -1,3 +1,3 @@
 export class UnbiasedBranch {
-    constructor(public context: string = "", public pc: number = 0) { }
+    constructor(public history: string = "", public pc: number = 0) { }
 }

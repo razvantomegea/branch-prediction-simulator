@@ -8,108 +8,187 @@ import { Results } from '../results';
 export class DetectorService {
   private HRg: HistoryRegister;
   private results: Results[];
-  private traces: any[];
   constructor(private benchmarkSvc: BenchmarkService) { }
 
   private initializeHRg(bitLength: number = 0, entries: HistoryRegisterEntry[] = [], size: number = 0): void {
     this.HRg = new HistoryRegister(bitLength, entries, size);
   }
 
-  public detectUBBranches(benchmarks: string[], hrgBits: number, bias: number): Promise<Results[]> {
+  private getTraces(benchmarks: string[]): Promise<any[]> {
     return new Promise((resolve: any) => {
-      this.traces = [];
+      let traces: any[] = [];
       this.benchmarkSvc.getBenchmarcks(benchmarks).subscribe(
         data => {
           data.forEach((trace: any, index: number) => {
-            this.traces.push(new Benchmark(benchmarks[index], trace._body.toString()));
+            traces.push(new Benchmark(benchmarks[index], trace._body.toString()));
             console.log(trace);
           });
         },
         error => console.error('Error: ' + error),
-        () => {
-          console.log(this.traces);
-          let result: Results;
-          this.results = [];
-          this.initializeHRg(hrgBits);
+        () => resolve(traces));
+    });
+  }
 
-          this.traces.forEach((trace: Benchmark, traceIdx: number) => {
-            let branches: string[] = trace.info.split("\n"),
-              context: string = "",
-              currPC: number,
-              unbiasedBr: UnbiasedBranch = new UnbiasedBranch(), unbiasedBrNr: number = 0;
-            this.HRg.resetRegister();
-            result = new Results("0%", 0, [], 0, 0, trace.filename);
+  private calcResults(bias: number, result: Results, unbiasedBr: UnbiasedBranch, unbiasedBrNr: number): void {
+    this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+      result.totalBranches += entry.taken + entry.notTaken;
+      let f0: number = entry.taken / (entry.taken + entry.notTaken),
+        f1 = entry.notTaken / (entry.taken + entry.notTaken),
+        polarisation = Math.max(f0, f1);
 
-            for (let i: number = 0; i < hrgBits; i++) {
-              context += "0";
+      if (polarisation < bias) {
+        unbiasedBrNr += entry.taken + entry.notTaken
+        unbiasedBr.history = entry.history;
+        unbiasedBr.pc = entry.pcLow;
+        result.ubBranches.push(unbiasedBr);
+      }
+    });
+
+    result.bias = (unbiasedBrNr * 100 / result.totalBranches).toFixed(2) + "%";
+    this.results.push(result);
+  }
+
+  private hrgTraceQuery(branches: string[], cpuContext: string, currPC: number): void {
+    branches.forEach((br: string) => {
+      let brItems: string[] = br.split(" "),
+        brType: string = brItems[0].charAt(0),
+        hit: boolean;
+
+      switch (brType) {
+        case 'B':
+          hit = false;
+          currPC = parseInt(brItems[1]);
+          this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+            if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
+              entry.taken++;
+              hit = true;
+            }
+          });
+
+          if (!hit) {
+            this.HRg.addEntry(cpuContext, 0, currPC, true);
+          }
+
+          cpuContext += "1";
+          break;
+
+        case 'N':
+          hit = false;
+          currPC = parseInt(brItems[1]);
+          this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+            if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
+              entry.notTaken++;
+              hit = true;
+            }
+          });
+
+          if (!hit) {
+            this.HRg.addEntry(cpuContext, 0, currPC, false);
+          }
+
+          cpuContext += "0";
+          break;
+
+        default:
+          break;
+      }
+
+      cpuContext = cpuContext.slice(1);
+    });
+  }
+
+  private hrgTraceQueryPath(branches: string[], cpuContext: string, currPC: number, path: number): void {
+    let pcList: number[] = [];
+    branches.forEach((br: string) => {
+      let brItems: string[] = br.split(" "),
+        brType: string = brItems[0].charAt(0),
+        hit: boolean;
+
+      if (pcList.length === path) {
+        pcList.forEach((pc: number, idx: number) => path = (idx === 0) ? pc : path ^ pc);
+        pcList.splice(0, 1);
+      } else {
+        switch (brType) {
+          case 'B':
+            hit = false;
+            currPC = parseInt(brItems[1]);
+            this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+              if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
+                entry.taken++;
+                hit = true;
+              }
+            });
+
+            if (!hit) {
+              this.HRg.addEntry(cpuContext, path, currPC, true);
             }
 
-            branches.forEach((br: string) => {
-              let brItems: string[] = br.split(" "),
-                brType: string = brItems[0].charAt(0),
-                hit: boolean;
+            cpuContext += "1";
+            pcList.push(currPC);
+            break;
 
-              switch (brType) {
-                case 'B':
-                  hit = false;
-                  currPC = parseInt(brItems[1]);
-                  this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
-                    if ((entry.pcLow === currPC) && (entry.context === context)) {
-                      entry.taken++;
-                      hit = true;
-                    }
-                  });
-
-                  if (!hit) {
-                    this.HRg.addEntry(context, 0, currPC, true);
-                  }
-
-                  context += "1";
-                  break;
-
-                case 'N':
-                  hit = false;
-                  currPC = parseInt(brItems[1]);
-                  this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
-                    if ((entry.pcLow === currPC) && (entry.context === context)) {
-                      entry.notTaken++;
-                      hit = true;
-                    }
-                  });
-
-                  if (!hit) {
-                    this.HRg.addEntry(context, 0, currPC, false);
-                  }
-
-                  context += "0";
-                  break;
-
-                default:
-                  break;
-              }
-
-              context = context.slice(1);
-            });
-
+          case 'N':
+            hit = false;
+            currPC = parseInt(brItems[1]);
             this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
-              result.totalBranches += entry.taken + entry.notTaken;
-              let f0: number = entry.taken / (entry.taken + entry.notTaken),
-                f1 = entry.notTaken / (entry.taken + entry.notTaken),
-                polarisation = Math.max(f0, f1);
-
-              if (polarisation < bias) {
-                unbiasedBrNr += entry.taken + entry.notTaken
-                unbiasedBr.context = entry.context;
-                unbiasedBr.pc = entry.pcLow;
-                result.ubBranches.push(unbiasedBr);
+              if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
+                entry.notTaken++;
+                hit = true;
               }
             });
 
-            result.bias = (unbiasedBrNr * 100 / result.totalBranches).toFixed(2) + "%";
-            this.results.push(result);
-          });
-          resolve(this.results);
+            if (!hit) {
+              this.HRg.addEntry(cpuContext, path, currPC, false);
+            }
+
+            cpuContext += "0";
+            pcList.push(currPC);
+            break;
+
+          default:
+            break;
         }
+      }
+
+      cpuContext = cpuContext.slice(1);
+    });
+  }
+
+  public detectUBBranches(benchmarks: string[], hrgBits: number, bias: number, path?: number): Promise<Results[]> {
+    return new Promise((resolve: any) => {
+
+      this.getTraces(benchmarks).then(traces => {
+        console.log(traces);
+        let result: Results;
+        this.results = [];
+        this.initializeHRg(hrgBits);
+
+        traces.forEach((trace: Benchmark, traceIdx: number) => {
+          let branches: string[] = trace.info.split("\n"),
+            cpuContext: string = "",
+            currPC: number,
+            unbiasedBr: UnbiasedBranch = new UnbiasedBranch(),
+            unbiasedBrNr: number = 0;
+          this.HRg.resetRegister();
+          result = new Results("0%", 0, [], 0, 0, trace.filename);
+
+          for (let i: number = 0; i < hrgBits; i++) {
+            cpuContext += "0";
+          }
+
+          if (!path) {
+            this.hrgTraceQuery(branches, cpuContext, currPC);
+          } else {
+            this.hrgTraceQueryPath(branches, cpuContext, currPC, path);
+          }
+
+          this.calcResults(bias, result, unbiasedBr, unbiasedBrNr);
+        });
+
+        console.log(this.results);
+
+        resolve(this.results);
+      }
       );
     });
   }

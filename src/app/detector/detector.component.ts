@@ -19,7 +19,12 @@ export class DetectorComponent {
   constructor(private detectSvc: DetectorService) { }
 
   public startDetection(): void {
-    this.detectSvc.detectUBBranches(this.benchmarks, this.hrgBits, this.bias).then((results: Results[]) => this.detectResults.emit(results));
+    if (this.withPath) {
+      this.detectSvc.detectUBBranches(this.benchmarks, this.hrgBits, this.bias, this.path).then((results: Results[]) => this.detectResults.emit(results));
+    } else {
+      this.detectSvc.detectUBBranches(this.benchmarks, this.hrgBits, this.bias).then((results: Results[]) => this.detectResults.emit(results));
+    }
+    
   }
 
 }
