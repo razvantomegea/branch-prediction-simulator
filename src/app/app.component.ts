@@ -13,11 +13,15 @@ export class AppComponent implements OnInit {
     constructor() { }
 
     public addBenchmark(ev: string[]): void {
-        this.benchmarks = ev;
+        this.benchmarks = [...ev];
     }
 
     public getDetection(ev: Results[]): void {
-        this.results = ev;
+        this.results = [...ev];
+    }
+
+    public getPrediction(ev: Results[]): void {
+        this.results = [...ev];
     }
 
     ngOnInit(): void {

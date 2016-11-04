@@ -6,8 +6,8 @@ export class HistoryTable {
         public size: number = 0
     ) { }
 
-    public addEntry(index: number, nextPCTaken: number, nextPCNoTaken: number, tag: number, isTaken: boolean): void {
-        let entry: HistoryTableEntry = new HistoryTableEntry(null, index, null, nextPCNoTaken, nextPCTaken, tag);
+    public addEntry(tableIdx: number, nextPCTaken: number, nextPCNoTaken: number, tag: number, isTaken: boolean): void {
+        let entry: HistoryTableEntry = new HistoryTableEntry(nextPCNoTaken, nextPCTaken, tag, tableIdx);
 
         if (this.entries.length === this.size) {
             let minLRU: number = this.size;

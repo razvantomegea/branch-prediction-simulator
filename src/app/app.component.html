@@ -3,16 +3,14 @@
 		<app-benchmark (bmkSelection)="addBenchmark($event)"></app-benchmark>
 	</div>
 	<div class="ui-g-12 ui-fluid">
-		<div class="ui-g-6 ui-g-nopad">
-			<div class="ui-g-12">
-				<app-predictor ></app-predictor>
-			</div>
-			<div class="ui-g-12">
-				<app-detector [benchmarks]="benchmarks" (detectSuccess)="getDetection($event)"></app-detector>
-			</div>
+		<div class="ui-g-6">
+			<app-predictor [benchmarks]="benchmarks" (predictSuccess)="getPrediction($event)"></app-predictor>
 		</div>
 		<div class="ui-g-6">
-			<app-standard-results [results]="results"></app-standard-results>
+			<app-detector [benchmarks]="benchmarks" (detectSuccess)="getDetection($event)"></app-detector>
 		</div>
+	</div>
+	<div class="ui-g-12 ui-fluid">
+		<app-standard-results [results]="results"></app-standard-results>
 	</div>
 </div>

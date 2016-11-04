@@ -10,7 +10,7 @@ export class BenchmarkService {
 
   public getBenchmarcks(benchmarkNames: string[]): Observable<any> {
     let httpCalls: Observable<Response>[] = [];
-    benchmarkNames.forEach((bchMark: string) => httpCalls.push(this.http.get(`assets/traces/${bchMark}.tra`).map((res: Response) => res)));
+    benchmarkNames.forEach((bchMark: string) => httpCalls.push(this.http.get(`/assets/traces/${bchMark}.TRA`).map((res: Response) => res)));
     return Observable.forkJoin(httpCalls);
   }
 

@@ -18,7 +18,7 @@ import { AppComponent } from './app.component';
 import { BenchmarkComponent, BenchmarkService } from './benchmark';
 import { DetectorComponent, DetectorService } from './detector';
 import { ChartResultsComponent, StandardResultsComponent } from './results';
-import { PredictorComponent } from './predictor/predictor.component';
+import { PredictorComponent, PredictorService } from './predictor';
 
 @NgModule({
   declarations: [
@@ -42,7 +42,7 @@ import { PredictorComponent } from './predictor/predictor.component';
     SharedModule,
     SpinnerModule
   ],
-  providers: [BenchmarkService, DetectorService],
+  providers: [BenchmarkService, DetectorService, PredictorService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -6,12 +6,12 @@ import { Results } from '../results';
 
 @Injectable()
 export class DetectorService {
-  private HRg: HistoryRegister;
+  private hReG: HistoryRegister;
   private results: Results[];
   constructor(private benchmarkSvc: BenchmarkService) { }
 
   private initializeHRg(bitLength: number = 0, entries: HistoryRegisterEntry[] = [], size: number = 0): void {
-    this.HRg = new HistoryRegister(bitLength, entries, size);
+    this.hReG = new HistoryRegister(bitLength, entries, size);
   }
 
   private getTraces(benchmarks: string[]): Promise<any[]> {
@@ -21,7 +21,6 @@ export class DetectorService {
         data => {
           data.forEach((trace: any, index: number) => {
             traces.push(new Benchmark(benchmarks[index], trace._body.toString()));
-            console.log(trace);
           });
         },
         error => console.error('Error: ' + error),
@@ -30,7 +29,7 @@ export class DetectorService {
   }
 
   private calcResults(bias: number, result: Results, unbiasedBr: UnbiasedBranch, unbiasedBrNr: number): void {
-    this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+    this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
       result.totalBranches += entry.taken + entry.notTaken;
       let f0: number = entry.taken / (entry.taken + entry.notTaken),
         f1 = entry.notTaken / (entry.taken + entry.notTaken),
@@ -52,13 +51,13 @@ export class DetectorService {
     branches.forEach((br: string) => {
       let brItems: string[] = br.split(" "),
         brType: string = brItems[0].charAt(0),
-        hit: boolean;
-
+        hit: boolean = false;
+      // Not sure if ok
+      currPC = parseInt(brItems[1]) % Math.pow(2, 32);
+      //
       switch (brType) {
         case 'B':
-          hit = false;
-          currPC = parseInt(brItems[1]);
-          this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+          this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
             if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
               entry.taken++;
               hit = true;
@@ -66,16 +65,14 @@ export class DetectorService {
           });
 
           if (!hit) {
-            this.HRg.addEntry(cpuContext, 0, currPC, true);
+            this.hReG.addEntry(cpuContext, 0, currPC, true);
           }
 
           cpuContext += "1";
           break;
 
         case 'N':
-          hit = false;
-          currPC = parseInt(brItems[1]);
-          this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
+          this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
             if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
               entry.notTaken++;
               hit = true;
@@ -83,7 +80,7 @@ export class DetectorService {
           });
 
           if (!hit) {
-            this.HRg.addEntry(cpuContext, 0, currPC, false);
+            this.hReG.addEntry(cpuContext, 0, currPC, false);
           }
 
           cpuContext += "0";
@@ -102,55 +99,50 @@ export class DetectorService {
     branches.forEach((br: string) => {
       let brItems: string[] = br.split(" "),
         brType: string = brItems[0].charAt(0),
-        hit: boolean;
+        hit: boolean = false;
+      // Not sure if ok
+      currPC = parseInt(brItems[1]) % Math.pow(2, 32);
+      //
+      switch (brType) {
+        case 'B':
+          this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
+            if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
+              entry.taken++;
+              hit = true;
+            }
+          });
+          if (!hit) {
+            this.hReG.addEntry(cpuContext, path, currPC, true);
+          }
+          cpuContext += "1";
+          break;
 
+        case 'N':
+          this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
+            if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
+              entry.notTaken++;
+              hit = true;
+            }
+          });
+
+          if (!hit) {
+            this.hReG.addEntry(cpuContext, path, currPC, false);
+          }
+
+          cpuContext += "0";
+          break;
+
+        default:
+          break;
+      }
+      cpuContext = cpuContext.slice(1);
+      // Not shure if okay...
       if (pcList.length === path) {
         pcList.forEach((pc: number, idx: number) => path = (idx === 0) ? pc : path ^ pc);
         pcList.splice(0, 1);
-      } else {
-        switch (brType) {
-          case 'B':
-            hit = false;
-            currPC = parseInt(brItems[1]);
-            this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
-              if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
-                entry.taken++;
-                hit = true;
-              }
-            });
-
-            if (!hit) {
-              this.HRg.addEntry(cpuContext, path, currPC, true);
-            }
-
-            cpuContext += "1";
-            pcList.push(currPC);
-            break;
-
-          case 'N':
-            hit = false;
-            currPC = parseInt(brItems[1]);
-            this.HRg.entries.forEach((entry: HistoryRegisterEntry) => {
-              if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
-                entry.notTaken++;
-                hit = true;
-              }
-            });
-
-            if (!hit) {
-              this.HRg.addEntry(cpuContext, path, currPC, false);
-            }
-
-            cpuContext += "0";
-            pcList.push(currPC);
-            break;
-
-          default:
-            break;
-        }
       }
-
-      cpuContext = cpuContext.slice(1);
+      //
+      pcList.push(currPC);
     });
   }
 
@@ -169,7 +161,7 @@ export class DetectorService {
             currPC: number,
             unbiasedBr: UnbiasedBranch = new UnbiasedBranch(),
             unbiasedBrNr: number = 0;
-          this.HRg.resetRegister();
+          this.hReG.resetRegister();
           result = new Results("0%", 0, [], 0, 0, trace.filename);
 
           for (let i: number = 0; i < hrgBits; i++) {
@@ -188,8 +180,7 @@ export class DetectorService {
         console.log(this.results);
 
         resolve(this.results);
-      }
-      );
+      });
     });
   }
 

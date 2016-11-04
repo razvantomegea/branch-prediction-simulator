@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 
 import { DetectorService } from './detector.service';
 import { Results } from '../results';
@@ -8,11 +8,12 @@ import { Results } from '../results';
   templateUrl: './detector.component.html',
   styleUrls: ['./detector.component.sass']
 })
-export class DetectorComponent {
+export class DetectorComponent implements OnChanges {
   @Input('benchmarks') benchmarks: string[];
   @Output('detectSuccess') detectResults: EventEmitter<any> = new EventEmitter();
-  public bias: number = 1;
+  public bias: number = 0.9;
   public hrgBits: number = 4;
+  public noSelection: boolean = true;
   public path: number = 4;
   public withPath: boolean = false;
 
@@ -24,7 +25,10 @@ export class DetectorComponent {
     } else {
       this.detectSvc.detectUBBranches(this.benchmarks, this.hrgBits, this.bias).then((results: Results[]) => this.detectResults.emit(results));
     }
-    
+  }
+
+  ngOnChanges(changes: any): void {
+    this.noSelection = changes.benchmarks.currentValue.length === 0;
   }
 
 }
