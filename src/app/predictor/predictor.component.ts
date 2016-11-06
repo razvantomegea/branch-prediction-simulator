@@ -15,7 +15,7 @@ export class PredictorComponent implements OnChanges {
   public hrgBits: number = 4;
   public noSelection: boolean = true;
   public path: number = 4;
-  public pcLowLength: number = 32;
+  public pcLowLength: number = 16;
   public phtSize: number = 128;
   public withPath: boolean = false;
   constructor(private predictorSvc: PredictorService) { }

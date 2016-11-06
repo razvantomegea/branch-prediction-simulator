@@ -29,11 +29,16 @@ export class DetectorService {
   }
 
   private calcResults(bias: number, result: Results, unbiasedBr: UnbiasedBranch, unbiasedBrNr: number): void {
+    let entryBranches: number = 0,
+      f0: number = 0,
+      f1: number = 0,
+      polarisation: number = 0;
     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-      result.totalBranches += entry.taken + entry.notTaken;
-      let f0: number = entry.taken / (entry.taken + entry.notTaken),
-        f1 = entry.notTaken / (entry.taken + entry.notTaken),
-        polarisation = Math.max(f0, f1);
+      entryBranches = entry.taken + entry.notTaken;
+      result.totalBranches += entryBranches;
+      f0 = entry.taken / ((entryBranches === 0) ? 1 : entryBranches);
+      f1 = entry.notTaken / ((entryBranches === 0) ? 1 : entryBranches);
+      polarisation = Math.max(f0, f1);
 
       if (polarisation < bias) {
         unbiasedBrNr += entry.taken + entry.notTaken
@@ -42,7 +47,6 @@ export class DetectorService {
         result.ubBranches.push(unbiasedBr);
       }
     });
-
     result.bias = (unbiasedBrNr * 100 / result.totalBranches).toFixed(2) + "%";
     this.results.push(result);
   }
@@ -51,10 +55,8 @@ export class DetectorService {
     branches.forEach((br: string) => {
       let brItems: string[] = br.split(" "),
         brType: string = brItems[0].charAt(0),
+        currPC = parseInt(brItems[1]),
         hit: boolean = false;
-      // Not sure if ok
-      currPC = parseInt(brItems[1]) % Math.pow(2, 32);
-      //
       switch (brType) {
         case 'B':
           this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
@@ -94,59 +96,60 @@ export class DetectorService {
     });
   }
 
-  private hrgTraceQueryPath(branches: string[], cpuContext: string, currPC: number, path: number): void {
-    let pcList: number[] = [];
+  private hrgTraceQueryPath(branches: string[], cpuContext: string, currPC: number, pathLength: number): void {
+    let pcList: number[] = [0];
     branches.forEach((br: string) => {
       let brItems: string[] = br.split(" "),
         brType: string = brItems[0].charAt(0),
-        hit: boolean = false;
-      // Not sure if ok
-      currPC = parseInt(brItems[1]) % Math.pow(2, 32);
-      //
+        currPC = parseInt(brItems[1]),
+        hit: boolean = false,
+        lastPC: number = pcList[pcList.length - 1];
+        
       switch (brType) {
         case 'B':
           this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-            if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
+            if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === lastPC)) {
               entry.taken++;
               hit = true;
             }
           });
+
           if (!hit) {
-            this.hReG.addEntry(cpuContext, path, currPC, true);
+            this.hReG.addEntry(cpuContext, lastPC, currPC, true);
           }
+
           cpuContext += "1";
+          pcList.push(currPC);
           break;
 
         case 'N':
           this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-            if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === path)) {
+            if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === lastPC)) {
               entry.notTaken++;
               hit = true;
             }
           });
 
           if (!hit) {
-            this.hReG.addEntry(cpuContext, path, currPC, false);
+            this.hReG.addEntry(cpuContext, lastPC, currPC, false);
           }
 
           cpuContext += "0";
+          pcList.push(currPC);
           break;
 
         default:
           break;
       }
+
       cpuContext = cpuContext.slice(1);
-      // Not shure if okay...
-      if (pcList.length === path) {
-        pcList.forEach((pc: number, idx: number) => path = (idx === 0) ? pc : path ^ pc);
+      if (pcList.length === pathLength) {
         pcList.splice(0, 1);
       }
-      //
-      pcList.push(currPC);
     });
   }
 
-  public detectUBBranches(benchmarks: string[], hrgBits: number, bias: number, path?: number): Promise<Results[]> {
+  public detectUBBranches(benchmarks: string[], hrgBits: number, bias: number, pathLength?: number): Promise<Results[]> {
     return new Promise((resolve: any) => {
 
       this.getTraces(benchmarks).then(traces => {
@@ -168,10 +171,10 @@ export class DetectorService {
             cpuContext += "0";
           }
 
-          if (!path) {
+          if (!pathLength) {
             this.hrgTraceQuery(branches, cpuContext, currPC);
           } else {
-            this.hrgTraceQueryPath(branches, cpuContext, currPC, path);
+            this.hrgTraceQueryPath(branches, cpuContext, currPC, pathLength);
           }
 
           this.calcResults(bias, result, unbiasedBr, unbiasedBrNr);
