@@ -8,6 +8,7 @@ import {
   ChartModule,
   CheckboxModule,
   DataTableModule,
+  DialogModule,
   FieldsetModule,
   PickListModule,
   SharedModule,
