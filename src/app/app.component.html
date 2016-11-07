@@ -1,6 +1,6 @@
 <div class="app ui-g">
 	<div class="ui-g-12 ui-fluid">
-		<app-benchmark (bmkSelection)="addBenchmark($event)"></app-benchmark>
+		<app-results [results]="results"></app-results>
 	</div>
 	<div class="ui-g-12 ui-fluid">
 		<div class="ui-g-6">
@@ -11,6 +11,6 @@
 		</div>
 	</div>
 	<div class="ui-g-12 ui-fluid">
-		<app-standard-results [results]="results"></app-standard-results>
+		<app-benchmark (bmkSelection)="addBenchmark($event)"></app-benchmark>
 	</div>
 </div>

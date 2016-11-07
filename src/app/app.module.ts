@@ -18,17 +18,16 @@ import {
 import { AppComponent } from './app.component';
 import { BenchmarkComponent, BenchmarkService } from './benchmark';
 import { DetectorComponent, DetectorService } from './detector';
-import { ChartResultsComponent, StandardResultsComponent } from './results';
 import { PredictorComponent, PredictorService } from './predictor';
+import { ResultsComponent } from './results';
 
 @NgModule({
   declarations: [
     AppComponent,
+    BenchmarkComponent,
     PredictorComponent,
     DetectorComponent,
-    ChartResultsComponent,
-    StandardResultsComponent,
-    BenchmarkComponent
+    ResultsComponent
   ],
   imports: [
     BrowserModule,
@@ -36,6 +35,7 @@ import { PredictorComponent, PredictorService } from './predictor';
     ChartModule,
     CheckboxModule,
     DataTableModule,
+    DialogModule,
     FieldsetModule,
     FormsModule,
     HttpModule,
