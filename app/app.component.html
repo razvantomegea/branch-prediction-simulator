@@ -1,18 +1,16 @@
 <div class="app ui-g">
 	<div class="ui-g-12 ui-fluid">
-		<app-benchmark></app-benchmark>
+		<app-results [results]="results"></app-results>
 	</div>
 	<div class="ui-g-12 ui-fluid">
-		<div class="ui-g-6 ui-g-nopad">
-			<div class="ui-g-12">
-				<app-predictor></app-predictor>
-			</div>
-			<div class="ui-g-12">
-				<app-detector></app-detector>
-			</div>
+		<div class="ui-g-6">
+			<app-predictor [benchmarks]="benchmarks" (predictSuccess)="getPrediction($event)"></app-predictor>
 		</div>
 		<div class="ui-g-6">
-			<app-standard-results></app-standard-results>
+			<app-detector [benchmarks]="benchmarks" (detectSuccess)="getDetection($event)"></app-detector>
 		</div>
+	</div>
+	<div class="ui-g-12 ui-fluid">
+		<app-benchmark (bmkSelection)="addBenchmark($event)"></app-benchmark>
 	</div>
 </div>

@@ -1,27 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+
+import { Results } from './results/results';
 
 @Component({
-  moduleId: module.id,
-  selector: 'app-root',
-  templateUrl: 'app.component.html'
+    moduleId: module.id,
+    selector: 'app-root',
+    templateUrl: 'app.component.html',
+    styleUrls: ['app.component.sass']
 })
-export class AppComponent {
-  title = 'app wor';
-  data: any;
-    
-    constructor() {
-        this.data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [
-                {
-                    label: 'First Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40]
-                },
-                {
-                    label: 'Second Dataset',
-                    data: [28, 48, 40, 19, 86, 27, 90]
-                }
-            ]
-        }
+export class AppComponent implements OnInit {
+    public benchmarks: string[];
+    public results: Results[];
+    constructor() { }
+
+    public addBenchmark(ev: string[]): void {
+        this.benchmarks = [...ev];
+    }
+
+    public getDetection(ev: Results[]): void {
+        this.results = [...ev];
+    }
+
+    public getPrediction(ev: Results[]): void {
+        this.results = [...ev];
+    }
+
+    ngOnInit(): void {
+        this.benchmarks = [];
+        this.results = [];
     }
 }

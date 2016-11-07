@@ -9,16 +9,39 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var history_table_1 = require('../prediction-history/history-table/history-table');
+var predictor_service_1 = require('./predictor.service');
 var PredictorComponent = (function () {
-    function PredictorComponent() {
-        this.biased = 0;
-        this.history = 0;
+    function PredictorComponent(predictorSvc) {
+        this.predictorSvc = predictorSvc;
+        this.predictResults = new core_1.EventEmitter();
+        this.bias = 0.9;
+        this.hrgBits = 4;
+        this.noSelection = true;
+        this.path = 4;
+        this.pcLowLength = 16;
+        this.phtSize = 128;
         this.withPath = false;
     }
-    PredictorComponent.prototype.ngOnInit = function () {
-        this.pht = new history_table_1.HistoryTable();
+    PredictorComponent.prototype.startPrediction = function () {
+        var _this = this;
+        if (this.withPath) {
+            this.predictorSvc.predictUBBranches(this.benchmarks, this.hrgBits, this.bias, this.pcLowLength, this.phtSize, this.path).then(function (results) { return _this.predictResults.emit(results); });
+        }
+        else {
+            this.predictorSvc.predictUBBranches(this.benchmarks, this.hrgBits, this.bias, this.pcLowLength, this.phtSize).then(function (results) { return _this.predictResults.emit(results); });
+        }
     };
+    PredictorComponent.prototype.ngOnChanges = function (changes) {
+        this.noSelection = changes.benchmarks.currentValue.length === 0;
+    };
+    __decorate([
+        core_1.Input('benchmarks'), 
+        __metadata('design:type', Array)
+    ], PredictorComponent.prototype, "benchmarks", void 0);
+    __decorate([
+        core_1.Output('predictSuccess'), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], PredictorComponent.prototype, "predictResults", void 0);
     PredictorComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
@@ -26,7 +49,7 @@ var PredictorComponent = (function () {
             templateUrl: 'predictor.component.html',
             styleUrls: ['predictor.component.sass']
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [predictor_service_1.PredictorService])
     ], PredictorComponent);
     return PredictorComponent;
 }());

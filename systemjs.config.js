@@ -10,6 +10,7 @@
         'rxjs': 'node_modules/rxjs',
         'font-awesome': 'node_modules/font-awesome',
         'primeng': 'node_modules/primeng',
+        'file-saver': 'node_modules/file-saver'
     };
     // packages tells the System loader how to load when no filename and/or no extension
     var packages = {
@@ -21,6 +22,10 @@
             defaultExtension: 'js'
         },
         'primeng': {
+            defaultExtension: 'js'
+        },
+        'file-saver': {
+            main: 'FileSaver.js',
             defaultExtension: 'js'
         }
     };

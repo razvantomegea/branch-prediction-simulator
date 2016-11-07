@@ -11,7 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var BenchmarkComponent = (function () {
     function BenchmarkComponent() {
+        this.bmkSelection = new core_1.EventEmitter();
     }
+    BenchmarkComponent.prototype.emitBenchmarks = function () {
+        this.bmkSelection.emit(this.selectedBenchmarks);
+    };
     BenchmarkComponent.prototype.ngOnInit = function () {
         this.availableBenchmarks = [
             "FBUBBLE",
@@ -25,6 +29,10 @@ var BenchmarkComponent = (function () {
         ];
         this.selectedBenchmarks = [];
     };
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], BenchmarkComponent.prototype, "bmkSelection", void 0);
     BenchmarkComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

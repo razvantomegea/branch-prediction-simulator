@@ -15,11 +15,13 @@ var http_1 = require('@angular/http');
 var primeng_1 = require('primeng/primeng');
 var app_component_1 = require('./app.component');
 var benchmark_component_1 = require('./benchmark/benchmark.component');
+var benchmark_service_1 = require('./benchmark/benchmark.service');
 var detector_component_1 = require('./detector/detector.component');
-var chart_results_component_1 = require('./results/chart-results/chart-results.component');
-var prediction_service_1 = require('./prediction-history/prediction.service');
+var detector_service_1 = require('./detector/detector.service');
 var predictor_component_1 = require('./predictor/predictor.component');
-var standard_results_component_1 = require('./results/standard-results/standard-results.component');
+var predictor_service_1 = require('./predictor/predictor.service');
+var results_component_1 = require('./results/results.component');
+var results_service_1 = require('./results/results.service');
 var AppModule = (function () {
     function AppModule() {
     }
@@ -27,17 +29,18 @@ var AppModule = (function () {
         core_1.NgModule({
             declarations: [
                 app_component_1.AppComponent,
+                benchmark_component_1.BenchmarkComponent,
                 predictor_component_1.PredictorComponent,
                 detector_component_1.DetectorComponent,
-                chart_results_component_1.ChartResultsComponent,
-                standard_results_component_1.StandardResultsComponent,
-                benchmark_component_1.BenchmarkComponent
+                results_component_1.ResultsComponent
             ],
             imports: [
                 platform_browser_1.BrowserModule,
+                primeng_1.ButtonModule,
                 primeng_1.ChartModule,
                 primeng_1.CheckboxModule,
                 primeng_1.DataTableModule,
+                primeng_1.DialogModule,
                 primeng_1.FieldsetModule,
                 forms_1.FormsModule,
                 http_1.HttpModule,
@@ -45,7 +48,7 @@ var AppModule = (function () {
                 primeng_1.SharedModule,
                 primeng_1.SpinnerModule
             ],
-            providers: [prediction_service_1.PredictionService],
+            providers: [benchmark_service_1.BenchmarkService, detector_service_1.DetectorService, predictor_service_1.PredictorService, results_service_1.ResultsService],
             bootstrap: [app_component_1.AppComponent]
         }), 
         __metadata('design:paramtypes', [])

@@ -11,26 +11,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var AppComponent = (function () {
     function AppComponent() {
-        this.title = 'app wor';
-        this.data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [
-                {
-                    label: 'First Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40]
-                },
-                {
-                    label: 'Second Dataset',
-                    data: [28, 48, 40, 19, 86, 27, 90]
-                }
-            ]
-        };
     }
+    AppComponent.prototype.addBenchmark = function (ev) {
+        this.benchmarks = ev.slice();
+    };
+    AppComponent.prototype.getDetection = function (ev) {
+        this.results = ev.slice();
+    };
+    AppComponent.prototype.getPrediction = function (ev) {
+        this.results = ev.slice();
+    };
+    AppComponent.prototype.ngOnInit = function () {
+        this.benchmarks = [];
+        this.results = [];
+    };
     AppComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
             selector: 'app-root',
-            templateUrl: 'app.component.html'
+            templateUrl: 'app.component.html',
+            styleUrls: ['app.component.sass']
         }), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
