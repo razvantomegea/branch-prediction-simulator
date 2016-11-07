@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 
 import { BenchmarkService } from '../benchmark';
-import { Results } from '../results';
+import { Results } from './results';
+import { ResultsService } from './results.service';
 
 @Component({
   selector: 'app-results',
@@ -16,49 +17,14 @@ export class ResultsComponent implements OnChanges, OnInit {
   public noResults: boolean;
   public pathResults: Results[];
   public showChart: boolean = false;
-  constructor(private benchmarkSvc: BenchmarkService) { }
+  constructor(private benchmarkSvc: BenchmarkService, private resultSvc: ResultsService) { }
 
   public saveResults(): void {
     this.benchmarkSvc.saveResults(this.results);
   }
 
   public showCharts(): void {
-    this.chartData = {
-      labels: [],
-      datasets: [
-        {
-          label: 'Bias without path',
-          backgroundColor: 'silver',
-          borderColor: 'silver',
-          data: []
-        },
-        {
-          label: 'Bias with path',
-          backgroundColor: 'blue',
-          borderColor: 'blue',
-          data: []
-        }
-      ]
-    }
-
-    this.pathResults.forEach((res: Results) => {
-      this.chartData.labels.push(res.traceName);
-      this.chartData.datasets[0].data.push(parseInt(res.bias.substring(0, res.bias.length - 1)));
-    });
-
-    this.chartData.labels.push('Average');
-    let average: number = this.chartData.datasets[0].data.reduce((prev: number, curr: number) => prev + curr);
-    this.chartData.datasets[0].data.push(average);
-
-    this.noPathResults.forEach((res: Results) => {
-      if (this.chartData.labels.indexOf(res.traceName) === -1) {
-        this.chartData.labels.push(res.traceName);
-      }
-      this.chartData.datasets[1].data.push(parseInt(res.bias.substring(0, res.bias.length - 1)));
-    });
-
-    average = this.chartData.datasets[1].data.reduce((prev: number, curr: number) => prev + curr);
-    this.chartData.datasets[1].data.push(average);
+    this.chartData = this.resultSvc.setChartData(this.pathResults, this.noPathResults);
     this.showChart = true;
   }
 

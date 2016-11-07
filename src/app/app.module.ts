@@ -19,7 +19,7 @@ import { AppComponent } from './app.component';
 import { BenchmarkComponent, BenchmarkService } from './benchmark';
 import { DetectorComponent, DetectorService } from './detector';
 import { PredictorComponent, PredictorService } from './predictor';
-import { ResultsComponent } from './results';
+import { ResultsComponent, ResultsService } from './results';
 
 @NgModule({
   declarations: [
@@ -43,7 +43,7 @@ import { ResultsComponent } from './results';
     SharedModule,
     SpinnerModule
   ],
-  providers: [BenchmarkService, DetectorService, PredictorService],
+  providers: [BenchmarkService, DetectorService, PredictorService, ResultsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
