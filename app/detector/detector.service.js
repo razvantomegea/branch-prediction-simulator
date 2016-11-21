@@ -53,32 +53,32 @@ var DetectorService = (function () {
         result.bias = (unbiasedBrNr * 100 / result.totalBranches).toFixed(2) + "%";
         this.results.push(result);
     };
-    DetectorService.prototype.hrgTraceQuery = function (branches, cpuContext, currPC) {
+    DetectorService.prototype.hrgTraceQuery = function (branches, cpuContext, pcLow) {
         var _this = this;
         branches.forEach(function (br) {
-            var brItems = br.split(" "), brType = brItems[0].charAt(0), currPC = parseInt(brItems[1]), hit = false;
+            var brItems = br.split(" "), brType = brItems[0].charAt(0), pcLow = parseInt(brItems[1]) % 4, hit = false;
             switch (brType) {
                 case 'B':
                     _this.hReG.entries.forEach(function (entry) {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext)) {
                             entry.taken++;
                             hit = true;
                         }
                     });
                     if (!hit) {
-                        _this.hReG.addEntry(cpuContext, 0, currPC, true);
+                        _this.hReG.addEntry(cpuContext, 0, pcLow, true);
                     }
                     cpuContext += "1";
                     break;
                 case 'N':
                     _this.hReG.entries.forEach(function (entry) {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext)) {
                             entry.notTaken++;
                             hit = true;
                         }
                     });
                     if (!hit) {
-                        _this.hReG.addEntry(cpuContext, 0, currPC, false);
+                        _this.hReG.addEntry(cpuContext, 0, pcLow, false);
                     }
                     cpuContext += "0";
                     break;
@@ -88,37 +88,37 @@ var DetectorService = (function () {
             cpuContext = cpuContext.slice(1);
         });
     };
-    DetectorService.prototype.hrgTraceQueryPath = function (branches, cpuContext, currPC, pathLength) {
+    DetectorService.prototype.hrgTraceQueryPath = function (branches, cpuContext, pcLow, pathLength) {
         var _this = this;
         var pcList = [0];
         branches.forEach(function (br) {
-            var brItems = br.split(" "), brType = brItems[0].charAt(0), currPC = parseInt(brItems[1]), hit = false, lastPC = pcList[pcList.length - 1];
+            var brItems = br.split(" "), brType = brItems[0].charAt(0), pcLow = parseInt(brItems[1]), hit = false, lastPC = pcList[pcList.length - 1];
             switch (brType) {
                 case 'B':
                     _this.hReG.entries.forEach(function (entry) {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
                             entry.taken++;
                             hit = true;
                         }
                     });
                     if (!hit) {
-                        _this.hReG.addEntry(cpuContext, lastPC, currPC, true);
+                        _this.hReG.addEntry(cpuContext, lastPC, pcLow, true);
                     }
                     cpuContext += "1";
-                    pcList.push(currPC);
+                    pcList.push(pcLow);
                     break;
                 case 'N':
                     _this.hReG.entries.forEach(function (entry) {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
                             entry.notTaken++;
                             hit = true;
                         }
                     });
                     if (!hit) {
-                        _this.hReG.addEntry(cpuContext, lastPC, currPC, false);
+                        _this.hReG.addEntry(cpuContext, lastPC, pcLow, false);
                     }
                     cpuContext += "0";
-                    pcList.push(currPC);
+                    pcList.push(pcLow);
                     break;
                 default:
                     break;
@@ -138,18 +138,18 @@ var DetectorService = (function () {
                 _this.results = [];
                 _this.initializeHRg(hrgBits);
                 traces.forEach(function (trace, traceIdx) {
-                    var branches = trace.info.split("\n"), cpuContext = "", currPC, unbiasedBr = new unbiased_branch_1.UnbiasedBranch(), unbiasedBrNr = 0;
+                    var branches = trace.info.split("\n"), cpuContext = "", pcLow, unbiasedBr = new unbiased_branch_1.UnbiasedBranch(), unbiasedBrNr = 0;
                     _this.hReG.resetRegister();
                     result = new results_1.Results("0%", 0, [], 0, 0, trace.filename);
                     for (var i = 0; i < hrgBits; i++) {
                         cpuContext += "0";
                     }
                     if (!pathLength) {
-                        _this.hrgTraceQuery(branches, cpuContext, currPC);
+                        _this.hrgTraceQuery(branches, cpuContext, pcLow);
                         result.withPath = true;
                     }
                     else {
-                        _this.hrgTraceQueryPath(branches, cpuContext, currPC, pathLength);
+                        _this.hrgTraceQueryPath(branches, cpuContext, pcLow, pathLength);
                         result.withPath = false;
                     }
                     _this.calcResults(bias, result, unbiasedBr, unbiasedBrNr);
