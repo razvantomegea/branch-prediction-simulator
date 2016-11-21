@@ -51,23 +51,24 @@ export class DetectorService {
         this.results.push(result);
     }
 
-    private hrgTraceQuery(branches: string[], cpuContext: string, currPC: number): void {
+    private hrgTraceQuery(branches: string[], cpuContext: string, pcLow: number): void {
         branches.forEach((br: string) => {
             let brItems: string[] = br.split(" "),
                 brType: string = brItems[0].charAt(0),
-                currPC = parseInt(brItems[1]),
+                // PC is on 8bits
+                pcLow = parseInt(brItems[1]) % 4, 
                 hit: boolean = false;
             switch (brType) {
                 case 'B':
                     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext)) {
                             entry.taken++;
                             hit = true;
                         }
                     });
 
                     if (!hit) {
-                        this.hReG.addEntry(cpuContext, 0, currPC, true);
+                        this.hReG.addEntry(cpuContext, 0, pcLow, true);
                     }
 
                     cpuContext += "1";
@@ -75,14 +76,14 @@ export class DetectorService {
 
                 case 'N':
                     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext)) {
                             entry.notTaken++;
                             hit = true;
                         }
                     });
 
                     if (!hit) {
-                        this.hReG.addEntry(cpuContext, 0, currPC, false);
+                        this.hReG.addEntry(cpuContext, 0, pcLow, false);
                     }
 
                     cpuContext += "0";
@@ -96,46 +97,46 @@ export class DetectorService {
         });
     }
 
-    private hrgTraceQueryPath(branches: string[], cpuContext: string, currPC: number, pathLength: number): void {
+    private hrgTraceQueryPath(branches: string[], cpuContext: string, pcLow: number, pathLength: number): void {
         let pcList: number[] = [0];
         branches.forEach((br: string) => {
             let brItems: string[] = br.split(" "),
                 brType: string = brItems[0].charAt(0),
-                currPC = parseInt(brItems[1]),
+                pcLow = parseInt(brItems[1]),
                 hit: boolean = false,
                 lastPC: number = pcList[pcList.length - 1];
 
             switch (brType) {
                 case 'B':
                     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
                             entry.taken++;
                             hit = true;
                         }
                     });
 
                     if (!hit) {
-                        this.hReG.addEntry(cpuContext, lastPC, currPC, true);
+                        this.hReG.addEntry(cpuContext, lastPC, pcLow, true);
                     }
 
                     cpuContext += "1";
-                    pcList.push(currPC);
+                    pcList.push(pcLow);
                     break;
 
                 case 'N':
                     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-                        if ((entry.pcLow === currPC) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
                             entry.notTaken++;
                             hit = true;
                         }
                     });
 
                     if (!hit) {
-                        this.hReG.addEntry(cpuContext, lastPC, currPC, false);
+                        this.hReG.addEntry(cpuContext, lastPC, pcLow, false);
                     }
 
                     cpuContext += "0";
-                    pcList.push(currPC);
+                    pcList.push(pcLow);
                     break;
 
                 default:
@@ -161,7 +162,7 @@ export class DetectorService {
                 traces.forEach((trace: Benchmark, traceIdx: number) => {
                     let branches: string[] = trace.info.split("\n"),
                         cpuContext: string = "",
-                        currPC: number,
+                        pcLow: number,
                         unbiasedBr: UnbiasedBranch = new UnbiasedBranch(),
                         unbiasedBrNr: number = 0;
                     this.hReG.resetRegister();
@@ -172,10 +173,10 @@ export class DetectorService {
                     }
 
                     if (!pathLength) {
-                        this.hrgTraceQuery(branches, cpuContext, currPC);
+                        this.hrgTraceQuery(branches, cpuContext, pcLow);
                         result.withPath = true;
                     } else {
-                        this.hrgTraceQueryPath(branches, cpuContext, currPC, pathLength);
+                        this.hrgTraceQueryPath(branches, cpuContext, pcLow, pathLength);
                         result.withPath = false;
                     }
 
