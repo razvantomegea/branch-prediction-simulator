@@ -174,16 +174,16 @@ export class DetectorService {
 
                     if (!pathLength) {
                         this.hrgTraceQuery(branches, cpuContext, pcLow);
-                        result.withPath = true;
+                        result.withPath = false;
                     } else {
                         this.hrgTraceQueryPath(branches, cpuContext, pcLow, pathLength);
-                        result.withPath = false;
+                        result.withPath = true;
                     }
 
                     this.calcResults(bias, result, unbiasedBr, unbiasedBrNr);
                 });
 
-                console.log(this.results);
+                console.log("Detection results", this.results);
 
                 resolve(this.results);
             });

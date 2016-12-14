@@ -1,30 +1,52 @@
 <div class="ui-g">
     <div class="ui-g-6 ui-fluid">
-        <p-dataTable [value]="noPathResults">
-            <header>Results without path</header>
+        <p-dataTable [value]="noPathResultsDetection">
+            <header>Detection results without path</header>
             <p-column field="traceName" header="Benchmark" sortable="true"></p-column>
             <p-column field="bias" header="Bias" sortable="true"></p-column>
             <p-column field="ubBranches.length" header="Unbiased Branches" sortable="true"></p-column>
             <p-column field="totalBranches" header="Total Branches" sortable="true"></p-column>
+        </p-dataTable>
+    </div>
+    <div class="ui-g-6 ui-fluid">
+        <p-dataTable [value]="pathResultsDetection">
+            <header>Detection results with path</header>
+            <p-column field="traceName" header="Benchmark" sortable="true"></p-column>
+            <p-column field="bias" header="Bias" sortable="true"></p-column>
+            <p-column field="ubBranches.length" header="Unbiased Branches" sortable="true"></p-column>
+            <p-column field="totalBranches" header="Total Branches" sortable="true"></p-column>
+        </p-dataTable>
+    </div>
+</div>
+<p-dialog header="Chart results" [draggable]="false" [resizable]="false" modal="true" width="1000" height="600" [(visible)]="showDetectionChart">
+    <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+</p-dialog>
+
+<button pButton type="button" (click)="showDetectionCharts()" label="Show charts" [disabled]="noResults"></button>
+
+<div class="ui-g">
+    <div class="ui-g-6 ui-fluid">
+        <p-dataTable [value]="noPathResultsPrediction">
+            <header>Prediction results without path</header>
+            <p-column field="traceName" header="Benchmark" sortable="true"></p-column>
+            <p-column field="bias" header="Bias" sortable="true"></p-column>
             <p-column field="goodPredictions" header="Good Predictions" sortable="true"></p-column>
             <p-column field="badPredictions" header="Bad Prediction" sortable="true"></p-column>
         </p-dataTable>
     </div>
     <div class="ui-g-6 ui-fluid">
-        <p-dataTable [value]="pathResults">
-            <header>Results with path</header>
+        <p-dataTable [value]="pathResultsPrediction">
+            <header>Prediction results with path</header>
             <p-column field="traceName" header="Benchmark" sortable="true"></p-column>
             <p-column field="bias" header="Bias" sortable="true"></p-column>
-            <p-column field="ubBranches.length" header="Unbiased Branches" sortable="true"></p-column>
-            <p-column field="totalBranches" header="Total Branches" sortable="true"></p-column>
             <p-column field="goodPredictions" header="Good Predictions" sortable="true"></p-column>
             <p-column field="badPredictions" header="Bad Prediction" sortable="true"></p-column>
         </p-dataTable>
     </div>
 </div>
-<p-dialog header="Chart results" [draggable]="false" [resizable]="false" modal="true" width="1000" height="600" [(visible)]="showChart">
+<p-dialog header="Chart results" [draggable]="false" [resizable]="false" modal="true" width="1000" height="600" [(visible)]="showPredictionChart">
     <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
 </p-dialog>
 
+<button pButton type="button" (click)="showPredictionCharts()" label="Show charts" [disabled]="noResults"></button>
 <button pButton type="button" (click)="saveResults()" label="Save results" [disabled]="noResults"></button>
-<button pButton type="button" (click)="showCharts()" label="Show charts" [disabled]="noResults"></button>

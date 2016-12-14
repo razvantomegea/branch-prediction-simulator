@@ -7,14 +7,17 @@ import {
     HistoryTable,
     HistoryTableEntry
 } from '../shared';
+import { DetectorService } from '../detector/detector.service';
 import { Results } from '../results';
+import { UnbiasedBranch } from '../shared/unbiased-branch';
 
 @Injectable()
 export class PredictorService {
+    private detectionResults: Results[];
     private hReG: HistoryRegister;
     private phT: HistoryTable;
     private results: Results[];
-    constructor(private benchmarkSvc: BenchmarkService) { }
+    constructor(private benchmarkSvc: BenchmarkService, private detectSvc: DetectorService) { }
 
     private initializeHRg(bitLength: number = 0, entries: HistoryRegisterEntry[] = [], size: number = 0): void {
         this.hReG = new HistoryRegister(bitLength, entries, size);
@@ -110,7 +113,7 @@ export class PredictorService {
                             entry.LRU = this.phT.size;
                             this.phT.updateLRU();
 
-                            if ((prediction === false) && (entry.nextPCTaken === targetPC)) {
+                            if ((prediction === false) && (entry.nextPCNoTaken === targetPC)) {
                                 result.goodPredictions++
                             } else {
                                 result.badPredictions++;
@@ -121,6 +124,10 @@ export class PredictorService {
                             }
                         }
                     });
+                    
+                    if (!hitPHT) {
+                        this.phT.addEntry(tableIdx, currPC + 1, targetPC, pcHigh, false);
+                    }
 
                     cpuContext += "0";
                     break;
@@ -135,29 +142,29 @@ export class PredictorService {
 
     private phtTraceQueryPath(branches: string[], cpuContext: string, currPC: number, pcSplit: number, result: Results, pathLength: number): void {
         let pcList: number[] = [];
-        branches.forEach((br: string) => {
+        branches.forEach((br: string, brIndex: number) => {
             let brItems: string[] = br.split(" "),
                 brType: string = brItems[0].charAt(0),
                 hitHRg: boolean = false,
                 hitPHT: boolean = false,
                 currPC = parseInt(brItems[1]),
-                lastPC: number = pcList[pcList.length - 1],
+                path: number = 0,
                 pcHigh: number = currPC / pcSplit,
                 pcLow: number = currPC % pcSplit,
-                tableIdx: number = parseInt((pcLow).toString(2) + cpuContext, 2),
+                tableIdx: number = parseInt((pcLow).toString(2) + cpuContext + path.toString(2), 2),
                 targetPC = parseInt(brItems[2]);
 
             switch (brType) {
                 case 'B':
                     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
-                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === path)) {
                             entry.taken++;
                             hitHRg = true;
                         }
                     });
 
                     if (!hitHRg) {
-                        this.hReG.addEntry(cpuContext, lastPC, pcLow, true);
+                        this.hReG.addEntry(cpuContext, path, pcLow, true);
                     }
 
                     this.phT.entries.forEach((entry: HistoryTableEntry) => {
@@ -196,7 +203,7 @@ export class PredictorService {
                     });
 
                     if (!hitHRg) {
-                        this.hReG.addEntry(cpuContext, lastPC, pcLow, false);
+                        this.hReG.addEntry(cpuContext, path, pcLow, false);
                     }
 
                     this.phT.entries.forEach((entry: HistoryTableEntry) => {
@@ -206,7 +213,7 @@ export class PredictorService {
                             entry.automata.changeState(false);
                             entry.LRU = this.phT.size;
                             this.phT.updateLRU();
-                            if ((!prediction) && (entry.nextPCTaken === targetPC)) {
+                            if ((!prediction) && (entry.nextPCNoTaken === targetPC)) {
                                 result.goodPredictions++
                             } else {
                                 result.badPredictions++;
@@ -218,6 +225,10 @@ export class PredictorService {
                         }
                     });
 
+                    if (!hitPHT) {
+                        this.phT.addEntry(tableIdx, currPC + 1, targetPC, pcHigh, false);
+                    }
+
                     cpuContext += "0";
                     pcList.push(currPC);
                     break;
@@ -225,9 +236,9 @@ export class PredictorService {
                 default:
                     break;
             }
-
             cpuContext = cpuContext.slice(1);
             if (pcList.length === pathLength) {
+                pcList.forEach((pc: number, pcIdx: number) => path = (pcIdx === 0) ? pc : path ^ pc);
                 pcList.splice(0, 1);
             }
         });
@@ -256,24 +267,24 @@ export class PredictorService {
                         cpuContext += "0";
                     }
 
-                    if (!pathLength) {
-                        this.phtTraceQuery(branches, cpuContext, currPC, pcLowLength, result);
-                        result.totalBranches = branches.length;
-                        result.withPath = false;
-                    } else {
+                    if (!!pathLength) {
+                        console.log("Is with path");
                         this.phtTraceQueryPath(branches, cpuContext, currPC, pcLowLength, result, pathLength);
                         result.totalBranches = branches.length;
                         result.withPath = true;
+                    } else {
+                        console.log("Is without path");
+                        this.phtTraceQuery(branches, cpuContext, currPC, pcLowLength, result);
+                        result.totalBranches = branches.length;
+                        result.withPath = false;
+
                     }
-
+                    result.isPrediction = true;
                     result.bias = (result.goodPredictions * 100 / result.totalBranches).toFixed(2) + "%";
-
                     this.results.push(result);
-
                 });
 
-                console.log(this.results);
-
+                console.log("Prediction results", this.results);
                 resolve(this.results);
             });
         });
