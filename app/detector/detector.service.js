@@ -35,18 +35,17 @@ var DetectorService = (function () {
             }, function (error) { return console.error('Error: ' + error); }, function () { return resolve(traces); });
         });
     };
-    DetectorService.prototype.calcResults = function (bias, result, unbiasedBr, unbiasedBrNr) {
-        var entryBranches = 0, f0 = 0, f1 = 0, polarisation = 0;
+    DetectorService.prototype.calcResults = function (bias, result) {
+        var entryBranches = 1, f0 = 0, f1 = 0, polarisation = 0, unbiasedBrNr = 0;
         this.hReG.entries.forEach(function (entry) {
             entryBranches = entry.taken + entry.notTaken;
             result.totalBranches += entryBranches;
-            f0 = entry.taken / ((entryBranches === 0) ? 1 : entryBranches);
-            f1 = entry.notTaken / ((entryBranches === 0) ? 1 : entryBranches);
+            f0 = entry.taken / entryBranches;
+            f1 = entry.notTaken / entryBranches;
             polarisation = Math.max(f0, f1);
             if (polarisation < bias) {
+                var unbiasedBr = new unbiased_branch_1.UnbiasedBranch(entry.history, entry.pcLow);
                 unbiasedBrNr += entry.taken + entry.notTaken;
-                unbiasedBr.history = entry.history;
-                unbiasedBr.pc = entry.pcLow;
                 result.ubBranches.push(unbiasedBr);
             }
         });
@@ -56,7 +55,9 @@ var DetectorService = (function () {
     DetectorService.prototype.hrgTraceQuery = function (branches, cpuContext, pcLow) {
         var _this = this;
         branches.forEach(function (br) {
-            var brItems = br.split(" "), brType = brItems[0].charAt(0), pcLow = parseInt(brItems[1]) % 4, hit = false;
+            var brItems = br.split(" "), brType = brItems[0].charAt(0), hit = false, 
+            // PC is on 8bits
+            pcLow = parseInt(brItems[1]) % Math.pow(2, 4);
             switch (brType) {
                 case 'B':
                     _this.hReG.entries.forEach(function (entry) {
@@ -90,41 +91,44 @@ var DetectorService = (function () {
     };
     DetectorService.prototype.hrgTraceQueryPath = function (branches, cpuContext, pcLow, pathLength) {
         var _this = this;
-        var pcList = [0];
+        var path = 0, pcList = [];
         branches.forEach(function (br) {
-            var brItems = br.split(" "), brType = brItems[0].charAt(0), pcLow = parseInt(brItems[1]), hit = false, lastPC = pcList[pcList.length - 1];
+            var brItems = br.split(" "), brType = brItems[0].charAt(0), currPC = parseInt(brItems[1]), hit = false, 
+            // PC is on 8bits
+            pcLow = currPC % Math.pow(2, 4);
             switch (brType) {
                 case 'B':
                     _this.hReG.entries.forEach(function (entry) {
-                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === path)) {
                             entry.taken++;
                             hit = true;
                         }
                     });
                     if (!hit) {
-                        _this.hReG.addEntry(cpuContext, lastPC, pcLow, true);
+                        _this.hReG.addEntry(cpuContext, path, pcLow, true);
                     }
                     cpuContext += "1";
-                    pcList.push(pcLow);
+                    pcList.push(currPC);
                     break;
                 case 'N':
                     _this.hReG.entries.forEach(function (entry) {
-                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === lastPC)) {
+                        if ((entry.pcLow === pcLow) && (entry.history === cpuContext) && (entry.path === path)) {
                             entry.notTaken++;
                             hit = true;
                         }
                     });
                     if (!hit) {
-                        _this.hReG.addEntry(cpuContext, lastPC, pcLow, false);
+                        _this.hReG.addEntry(cpuContext, path, pcLow, false);
                     }
                     cpuContext += "0";
-                    pcList.push(pcLow);
+                    pcList.push(currPC);
                     break;
                 default:
                     break;
             }
             cpuContext = cpuContext.slice(1);
             if (pcList.length === pathLength) {
+                pcList.forEach(function (pc, pcIdx) { return path = (pcIdx === 0) ? pc : path ^ pc; });
                 pcList.splice(0, 1);
             }
         });
@@ -138,23 +142,22 @@ var DetectorService = (function () {
                 _this.results = [];
                 _this.initializeHRg(hrgBits);
                 traces.forEach(function (trace, traceIdx) {
-                    var branches = trace.info.split("\n"), cpuContext = "", pcLow, unbiasedBr = new unbiased_branch_1.UnbiasedBranch(), unbiasedBrNr = 0;
+                    var branches = trace.info.split("\n"), cpuContext = "", pcLow, result = new results_1.Results("0%", 0, [], 0, 0, trace.filename);
                     _this.hReG.resetRegister();
-                    result = new results_1.Results("0%", 0, [], 0, 0, trace.filename);
                     for (var i = 0; i < hrgBits; i++) {
                         cpuContext += "0";
                     }
                     if (!pathLength) {
                         _this.hrgTraceQuery(branches, cpuContext, pcLow);
-                        result.withPath = true;
+                        result.withPath = false;
                     }
                     else {
                         _this.hrgTraceQueryPath(branches, cpuContext, pcLow, pathLength);
-                        result.withPath = false;
+                        result.withPath = true;
                     }
-                    _this.calcResults(bias, result, unbiasedBr, unbiasedBrNr);
+                    _this.calcResults(bias, result);
                 });
-                console.log(_this.results);
+                console.log("Detection results", _this.results);
                 resolve(_this.results);
             });
         });

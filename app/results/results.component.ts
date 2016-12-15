@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 
 import { BenchmarkService } from '../benchmark/benchmark.service';
 import { Results } from './results';
@@ -10,37 +10,18 @@ import { ResultsService } from './results.service';
   templateUrl: 'results.component.html',
   styleUrls: ['results.component.sass']
 })
-export class ResultsComponent implements OnChanges, OnInit {
+export class ResultsComponent implements OnChanges {
   @Input('results') results: Results[];
   public chartData: any;
   public chartOptions: any;
-  public noPathResults: Results[];
+  public noPathResultsDetection: Results[];
+  public noPathResultsPrediction: Results[];
   public noResults: boolean;
-  public pathResults: Results[];
-  public showChart: boolean = false;
-  constructor(private benchmarkSvc: BenchmarkService, private resultSvc: ResultsService) { }
-
-  public saveResults(): void {
-    this.benchmarkSvc.saveResults(this.results);
-  }
-
-  public showCharts(): void {
-    this.chartData = this.resultSvc.setChartData(this.pathResults, this.noPathResults);
-    this.showChart = true;
-  }
-
-  ngOnChanges(changes: any): void {
-    let newResult: Results = changes.results.currentValue[0];
-    this.noResults = changes.results.currentValue.length === 0;
-    if (!!newResult && newResult.withPath) {
-      this.pathResults = [...this.results];
-    } else {
-      this.noPathResults = [...this.results];
-    }
-    console.log(this.chartData);
-  }
-
-  ngOnInit(): void {
+  public pathResultsDetection: Results[];
+  public pathResultsPrediction: Results[];
+  public showDetectionChart: boolean = false;
+  public showPredictionChart: boolean = false;
+  constructor(private benchmarkSvc: BenchmarkService, private resultSvc: ResultsService) {
     this.chartData = {
       labels: [],
       datasets: [
@@ -68,7 +49,7 @@ export class ResultsComponent implements OnChanges, OnInit {
       title: {
         display: true,
         fontColor: 'white',
-        text: 'Detection/prediction results'
+        text: ''
       },
       scales: {
         yAxes: [{
@@ -84,6 +65,43 @@ export class ResultsComponent implements OnChanges, OnInit {
         }]
       }
     }
+  }
+
+  public saveResults(): void {
+    this.benchmarkSvc.saveResults(this.results);
+  }
+
+  public showDetectionCharts(): void {
+    this.chartData = this.resultSvc.setChartData(this.pathResultsDetection, this.noPathResultsDetection);
+    this.chartOptions.title.text = 'Detection results';
+    this.showDetectionChart = true;
+  }
+
+  public showPredictionCharts(): void {
+    this.chartData = this.resultSvc.setChartData(this.pathResultsPrediction, this.noPathResultsPrediction);
+    this.chartOptions.title.text = 'Prediction results';
+    this.showPredictionChart = true;
+  }
+
+  ngOnChanges(changes: any): void {
+    let newResult: Results = changes.results.currentValue[0];
+    this.noResults = changes.results.currentValue.length === 0;
+    if (!!newResult) {
+      if (newResult.withPath) {
+        if (newResult.isPrediction) {
+          this.pathResultsPrediction = [...this.results];
+        } else {
+          this.pathResultsDetection = [...this.results];
+        }
+      } else {
+        if (newResult.isPrediction) {
+          this.noPathResultsPrediction = [...this.results];
+        } else {
+          this.noPathResultsDetection = [...this.results];
+        }
+      }
+    }
+    console.log(this.chartData);
   }
 
 }

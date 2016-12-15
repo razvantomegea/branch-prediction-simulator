@@ -8,6 +8,7 @@ export class Results {
         public goodPredictions: number = 0,
         public badPredictions: number = 0,
         public traceName: string = "",
+        public isPrediction: boolean = false,
         public withPath: boolean = false
     ) { }
 }

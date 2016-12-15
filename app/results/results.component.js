@@ -15,27 +15,8 @@ var ResultsComponent = (function () {
     function ResultsComponent(benchmarkSvc, resultSvc) {
         this.benchmarkSvc = benchmarkSvc;
         this.resultSvc = resultSvc;
-        this.showChart = false;
-    }
-    ResultsComponent.prototype.saveResults = function () {
-        this.benchmarkSvc.saveResults(this.results);
-    };
-    ResultsComponent.prototype.showCharts = function () {
-        this.chartData = this.resultSvc.setChartData(this.pathResults, this.noPathResults);
-        this.showChart = true;
-    };
-    ResultsComponent.prototype.ngOnChanges = function (changes) {
-        var newResult = changes.results.currentValue[0];
-        this.noResults = changes.results.currentValue.length === 0;
-        if (!!newResult && newResult.withPath) {
-            this.pathResults = this.results.slice();
-        }
-        else {
-            this.noPathResults = this.results.slice();
-        }
-        console.log(this.chartData);
-    };
-    ResultsComponent.prototype.ngOnInit = function () {
+        this.showDetectionChart = false;
+        this.showPredictionChart = false;
         this.chartData = {
             labels: [],
             datasets: [
@@ -62,7 +43,7 @@ var ResultsComponent = (function () {
             title: {
                 display: true,
                 fontColor: 'white',
-                text: 'Detection/prediction results'
+                text: ''
             },
             scales: {
                 yAxes: [{
@@ -78,6 +59,42 @@ var ResultsComponent = (function () {
                     }]
             }
         };
+    }
+    ResultsComponent.prototype.saveResults = function () {
+        this.benchmarkSvc.saveResults(this.results);
+    };
+    ResultsComponent.prototype.showDetectionCharts = function () {
+        this.chartData = this.resultSvc.setChartData(this.pathResultsDetection, this.noPathResultsDetection);
+        this.chartOptions.title.text = 'Detection results';
+        this.showDetectionChart = true;
+    };
+    ResultsComponent.prototype.showPredictionCharts = function () {
+        this.chartData = this.resultSvc.setChartData(this.pathResultsPrediction, this.noPathResultsPrediction);
+        this.chartOptions.title.text = 'Prediction results';
+        this.showPredictionChart = true;
+    };
+    ResultsComponent.prototype.ngOnChanges = function (changes) {
+        var newResult = changes.results.currentValue[0];
+        this.noResults = changes.results.currentValue.length === 0;
+        if (!!newResult) {
+            if (newResult.withPath) {
+                if (newResult.isPrediction) {
+                    this.pathResultsPrediction = this.results.slice();
+                }
+                else {
+                    this.pathResultsDetection = this.results.slice();
+                }
+            }
+            else {
+                if (newResult.isPrediction) {
+                    this.noPathResultsPrediction = this.results.slice();
+                }
+                else {
+                    this.noPathResultsDetection = this.results.slice();
+                }
+            }
+        }
+        console.log(this.chartData);
     };
     __decorate([
         core_1.Input('results'), 
