@@ -55,9 +55,9 @@ export class DetectorService {
         branches.forEach((br: string) => {
             let brItems: string[] = br.split(" "),
                 brType: string = brItems[0].charAt(0),
+                hit: boolean = false,
                 // PC is on 8bits
-                pcLow = parseInt(brItems[1]) % 4,
-                hit: boolean = false;
+                pcLow: number = parseInt(brItems[1]) % Math.pow(2, 4);
             switch (brType) {
                 case 'B':
                     this.hReG.entries.forEach((entry: HistoryRegisterEntry) => {
@@ -98,13 +98,15 @@ export class DetectorService {
     }
 
     private hrgTraceQueryPath(branches: string[], cpuContext: string, pcLow: number, pathLength: number): void {
-        let pcList: number[] = [0];
+        let path: number = 0, pcList: number[] = [];
+
         branches.forEach((br: string) => {
             let brItems: string[] = br.split(" "),
                 brType: string = brItems[0].charAt(0),
-                path: number = 0,
-                pcLow = parseInt(brItems[1]),
-                hit: boolean = false;
+                currPC: number = parseInt(brItems[1]),
+                hit: boolean = false,
+                // PC is on 8bits
+                pcLow: number = currPC % Math.pow(2, 4);
 
             switch (brType) {
                 case 'B':
@@ -120,7 +122,7 @@ export class DetectorService {
                     }
 
                     cpuContext += "1";
-                    pcList.push(pcLow);
+                    pcList.push(currPC);
                     break;
 
                 case 'N':
@@ -136,7 +138,7 @@ export class DetectorService {
                     }
 
                     cpuContext += "0";
-                    pcList.push(pcLow);
+                    pcList.push(currPC);
                     break;
 
                 default:
