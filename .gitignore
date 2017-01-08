@@ -3,7 +3,13 @@
 # compiled output
 /dist
 /tmp
-/branch-detection-simulator-win32-x64
+/unbiased-branch-predictor-linux-ia32
+/unbiased-branch-predictor-linux-x64
+/unbiased-branch-predictor-linux-armv7l
+/unbiased-branch-predictor-win32-ia32
+/unbiased-branch-predictor-win32-x64
+/unbiased-branch-predictor-mas-x64
+/unbiased-branch-predictor-darwin-x64
 
 # dependencies
 /node_modules
