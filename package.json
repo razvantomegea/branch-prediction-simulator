@@ -1,5 +1,5 @@
 {
-  "name": "branch-detection-simulator",
+  "name": "unbiased-branch-predictor",
   "version": "1.0.0",
   "description": "Module that detects difficult to predict (unbiased) branches implemented with Angular 2 and Electron.",
   "author": "Razvan Tomegea <razvan.tomegea@gmail.com>",
